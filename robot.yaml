@@ -1,0 +1,21 @@
+tasks:
+  Run all tasks:
+    shell: python -m robot --report NONE --outputdir output --logtitle "Task log" tasks/SAP/TipoCambio.robot
+
+condaConfigFile: conda.yaml
+artifactsDir: output
+PATH:
+  - .
+PYTHONPATH:
+  - .
+ignoreFiles:
+  - .gitignore
+
+channels:
+  - conda-forge
+
+dependencies:
+  - pip:
+    - rpaframework==17.0.1
+    - robotframework-browser==13.3.0
+    - rpaframework-windows==6.0.1
