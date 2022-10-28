@@ -20,7 +20,7 @@ def get_tipo_cambio():
         viewport={'width': 1920, 'height': 1080},
     )
     b.new_page('https://www.sbs.gob.pe/app/pp/sistip_portal/paginas/publicacion/tipocambiopromedio.aspx')
-    tipo_cambio = b.get_text('#ctl00_cphContent_rgMercadoProfesional_ctl00__0 td:last-child')
+    tipo_cambio = b.get_text('#ctl00_cphContent_rgTipoCambio_ctl00__0>td:last-child')
     b.close_browser()
     return tipo_cambio
 
@@ -37,9 +37,10 @@ def tipo_cambio():
     win.get_element('type:Edit')
     win.send_keys(keys='Tipos de cambio', send_enter=True)
     win.send_keys(keys=tipo_cambio, send_enter=True)
+    sleep(5)
     win.close_window(WINDOWS_NAME)
     return tipo_cambio
 
 
-#if __name__ == '__main__':
-#    tipo_cambio()
+if __name__ == '__main__':
+    tipo_cambio()
