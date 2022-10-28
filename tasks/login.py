@@ -21,13 +21,18 @@ def verificar_BPS():
 
 
 def login_sap():
-    library.windows_search('SAP Business One')
-    library.control_window('SAP Business One')
-    library.send_keys(keys=USER)
-    library.send_keys(keys='{TAB}')
-    library.send_keys(keys=PASSWORD, send_enter=True)
-    print('Autentificación exitosa')
-    verificar_BPS()
+    try:
+        library.control_window('name:"Menú principal" and type:Window', timeout=1)
+    except Exception as e:
+        library.windows_search('SAP Business One')
+        library.control_window('SAP Business One')
+        library.send_keys(keys=USER)
+        library.send_keys(keys='{TAB}')
+        library.send_keys(keys=PASSWORD, send_enter=True)
+        print('Autentificación exitosa')
+        verificar_BPS()
+    else:
+        print('El usuario ya esta autentificado')
 
 #if __name__ == '__main__':
 #    login_sap()

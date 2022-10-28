@@ -1,3 +1,4 @@
+from re import S
 from login import login_sap
 from RPA.Windows import Windows
 from time import sleep
@@ -34,7 +35,7 @@ def activar_busqueda():
     
 def parametros_busqueda():
     win.send_keys(keys='{TAB}{DOWN}')
-    sleep(0.5)
+    sleep(0.2)
     win.send_keys(keys='{DOWN}{ENTER}')
     sleep(0.2)
     win.send_keys(keys='{TAB}')
@@ -42,13 +43,18 @@ def parametros_busqueda():
     fecha = datetime.now().strftime('%d/%m/%Y')
     win.send_keys(keys=fecha)
     sleep(0.1)
-    win.send_keys(keys='{DOWN}')
+    win.send_keys(keys='{TAB}')
+    sleep(0.1)
+    control = win.control_window('name:"Entrega" and type:Window')
+    desk.click(f'coordinates:{control.left + 200},{control.top + 90}')
+    sleep(0.1)
+    win.send_keys(keys='*T023*')
+    print('Parametros de busqueda establecidos')
     sleep(0.1)
     win.send_keys(keys='{ENTER}')
-    print('Parametros de busqueda establecidos')
     sleep(0.5)
     try:
-        win.control_window('Lista de entregas', timeout=1)
+        win.control_window('name:"Lista de Entregas" and type:Window', timeout=1)
     except Exception as e:
         pass
     else:
@@ -78,6 +84,8 @@ def copiar_a_factura():
     win.send_keys(keys='{ENTER}')
     print('Formulario de factura abierto')
     sleep(0.5)
+    desk.click(f'coordinates:{control.right - 10},{control.top+10}')
+    win.control_window('name:"Factura de deudores" and type:Window')
 
 
 def crear_comentario():
@@ -95,8 +103,8 @@ def crear_comentario():
 
 
 def llenar_datos_factura():
-    control = win.control_window('id:"30009"')
-    desk.click(f'coordinates:{control.right - 50},{control.top + 120}')
+    control = win.control_window('id:"30007" and and type:Window')
+    desk.click(f'coordinates:{control.right - 50},{control.top + 70}')
     win.send_keys(keys='{TAB}01')
     sleep(0.1)
     win.send_keys(keys='{TAB}F023')
@@ -105,7 +113,7 @@ def llenar_datos_factura():
     sleep(0.1)
     print('Datos de tipo de documento y serie establecidos')
 
-    desk.click(f'coordinates:{control.left + 200},{control.top + 235}', action='right_click')
+    desk.click(f'coordinates:{control.left + 200},{control.top + 135}', action='right_click')
     sleep(0.5)
     win.send_keys(keys='{DOWN}', send_enter=True)
     fact_export = desk.get_clipboard_value()
@@ -120,8 +128,17 @@ def llenar_datos_factura():
         print('las facturas de exportación deben de generar de forma manual')
     print('Datos de tipo de venta establecidos')
 
+
+def crear_factura():
+    control = win.control_window('name:"Factura de deudores" and type:Window')
+    desk.click(f'coordinates:{control.left + 50},{control.bottom - 25}')
+    sleep(0.2)
+    win.send_keys(keys='{ENTER}')
+    sleep(20)
+    desk.click(f'coordinates:{control.right - 10},{control.top + 10}')
+
     
-def get_guias():
+def proceso_creacion_factura():
     login_sap()
     formulario_de_entregas()
     activar_busqueda()
@@ -131,11 +148,13 @@ def get_guias():
         copiar_a_factura()
         llenar_datos_factura()
         crear_comentario()
+        crear_factura()
+        proceso_creacion_factura()
 
     
 if __name__ == '__main__':
     try:
-        get_guias()
+        proceso_creacion_factura()
     except Exception as e:
         print(e)
     finally:
