@@ -14,3 +14,4 @@ schedule.every(1).to(5).minutes.do(crear_factura_deudores.job)
 while True:
     schedule.run_pending()
     time.sleep(1)
+
