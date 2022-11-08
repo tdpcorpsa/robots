@@ -5,7 +5,7 @@
 Inicialización del entorno
 
 ```
-$ py -v venv .env
+$ py -m venv .env
 $ .env/Scripts/Active
 ```
 

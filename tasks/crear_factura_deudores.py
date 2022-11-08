@@ -170,6 +170,7 @@ def proceso_creacion_factura():
         proceso_creacion_factura()
     else:
         sleep(5*60)
+        proceso_creacion_factura
 
     
 if __name__ == '__main__':
