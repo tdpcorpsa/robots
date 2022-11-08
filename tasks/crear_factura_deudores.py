@@ -177,5 +177,5 @@ def job():
         print(e)
     finally:
         sleep(2)
-        win.close_window('SAP Business One 10.0 - TDP CORP S.A.')
+        #win.close_window('SAP Business One 10.0 - TDP CORP S.A.')
         

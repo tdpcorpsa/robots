@@ -2,7 +2,7 @@
 
 ## Incializar
 
-Inicialización del entorno
+Inicialización del entorno, desde porwerShell
 
 ```
 $ py -m venv .env
@@ -10,6 +10,9 @@ $ .env/Scripts/Active
 ```
 
 Instalar requerimientos de python
+```
+$  pip install lxml-4.9.0-cp311-cp311-win_amd64.whl
+```
 
 ```
 $ pip install -r requirements.txt
@@ -20,5 +23,5 @@ $ pip install -r requirements.txt
 
 *Tipo de cambio*, Ingresa el tipo de cambio del día segun la SBS 
 ```
-$ robot --outputdir C:\Projects\tdpcorp\robots\output tasks/tipo_cambio.robot 
+$ py 
 ```
