@@ -25,7 +25,10 @@ def login_sap():
         library.control_window('name:"Menú principal" and type:Window', timeout=1)
     except Exception as e:
         library.windows_search('SAP Business One')
-        library.send_keys(keys='{ENTER}')
+        try:
+            library.control_window('SAP Business One')
+        except Exception as e:
+            library.send_keys(keys='{ENTER}')
         library.control_window('SAP Business One')
         library.send_keys(keys=USER)
         library.send_keys(keys='{TAB}')

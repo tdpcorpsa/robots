@@ -3,3 +3,4 @@ robotframework-browser
 rpaframework
 rpaframework-windows
 jupyterlab
+schedule

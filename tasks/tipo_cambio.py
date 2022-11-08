@@ -42,5 +42,5 @@ def tipo_cambio():
     return tipo_cambio
 
 
-if __name__ == '__main__':
-    tipo_cambio()
+#if __name__ == '__main__':
+#    tipo_cambio()

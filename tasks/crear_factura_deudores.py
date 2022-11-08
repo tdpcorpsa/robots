@@ -1,5 +1,5 @@
 from re import S
-from login import login_sap
+from .login import login_sap
 from RPA.Windows import Windows
 from time import sleep
 from datetime import datetime
@@ -41,15 +41,15 @@ def parametros_busqueda():
     win.send_keys(keys='{TAB}{DOWN}')
     sleep(0.2)
     win.send_keys(keys='{DOWN}{ENTER}')
-    sleep(0.2)
+    sleep(0.1)
     win.send_keys(keys='{TAB}')
-    sleep(0.2)
+    sleep(0.1)
     # Fecha de contabilización
-    fecha = datetime.now().strftime('%d/%m/%Y')
-    win.send_keys(keys=fecha)
-    sleep(0.1)
-    win.send_keys(keys='{TAB}')
-    sleep(0.1)
+    #fecha = datetime.now().strftime('%d/%m/%Y')
+    #win.send_keys(keys=fecha)
+    #sleep(0.1)
+    #win.send_keys(keys='{TAB}')
+    #sleep(0.1)
 
     # Automático
     control = win.control_window('name:"Campos: Parametriz..."  and type:Window')
@@ -168,21 +168,14 @@ def proceso_creacion_factura():
         crear_comentario()
         crear_factura()
         proceso_creacion_factura()
-    else:
-        sleep(5*60)
-        proceso_creacion_factura
 
-    
-if __name__ == '__main__':
+
+def job():
     try:
         proceso_creacion_factura()
     except Exception as e:
         print(e)
     finally:
         sleep(2)
-        #win.close_window('SAP Business One 10.0 - TDP CORP S.A.')
+        win.close_window('SAP Business One 10.0 - TDP CORP S.A.')
         
-    
-        
-#FE - Tipo de Operación: Ventalnterna
-# comentario; eliminar comentario de sistema y agregar comentario de creación de factura
