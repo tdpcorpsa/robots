@@ -146,6 +146,29 @@ def llenar_datos_factura():
  
     print('Datos de tipo de venta establecidos')
 
+    
+def verificar_moneda(control):
+    control = win.control_window(f'name:"{control}" and type:Window')
+    desk.click(f'coordinates:{control.left + 150},{control.top + 100}', action='right_click')
+    sleep(0.1)
+    win.send_keys(keys='{ESC}')
+    sleep(0.1)
+    win.send_keys(keys='{CTRL}c')
+    moneda = desk.get_clipboard_value()
+
+    if moneda in ('S/', 'US$'):
+        desk.click(f'coordinates:{control.left + 350},{control.top + 180}')
+        sleep(0.1)
+        desk.click(f'coordinates:{control.left + 180},{control.top + 220}', action='right_click')
+        sleep(0.1)
+        win.send_keys(keys='{ESC}')
+        sleep(0.1)
+        win.send_keys(keys='{DELETE}')
+        if moneda == 'S/':
+            win.send_keys(keys='1211111')
+        else:
+            win.send_keys(keys='1211112')
+
 
 def crear_factura():
     control = win.control_window('name:"Factura de reserva de clientes" and type:Window')
@@ -166,6 +189,7 @@ def proceso_creacion_factura():
         copiar_a_factura()
         llenar_datos_factura()
         crear_comentario()
+        verificar_moneda('Factura de reserva de clientes')
         crear_factura()
         proceso_creacion_factura()
 
@@ -178,4 +202,8 @@ def job():
     finally:
         sleep(2)
         #win.close_window('SAP Business One 10.0 - TDP CORP S.A.')
+        print('Proceso finalizado')
+        win.send_keys(keys='{CTRL}Q')
+        sleep(2)
+        win.send_keys(keys='{ENTER}')
         

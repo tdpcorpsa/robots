@@ -9,9 +9,13 @@ schedule_logger = logging.getLogger('schedule')
 schedule_logger.setLevel(level=logging.DEBUG)
 
 
-schedule.every(1).to(5).minutes.do(crear_factura_deudores.job)
+schedule.every(20).minutes.do(crear_factura_deudores.job)
 
 while True:
     schedule.run_pending()
     time.sleep(1)
 
+#    
+#if __name__ == '__main__': 
+#    crear_factura_deudores.job()
+#
