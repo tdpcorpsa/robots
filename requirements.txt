@@ -4,3 +4,6 @@ rpaframework
 rpaframework-windows
 jupyterlab
 schedule
+gspread
+pyfiglet
+rich

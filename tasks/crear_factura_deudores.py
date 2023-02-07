@@ -175,7 +175,7 @@ def crear_factura():
     desk.click(f'coordinates:{control.left + 50},{control.bottom - 25}')
     sleep(0.1)
     win.send_keys(keys='{ENTER}')
-    sleep(10)
+    sleep(15)
     desk.click(f'coordinates:{control.right - 10},{control.top + 10}')
 
     
