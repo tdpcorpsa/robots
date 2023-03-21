@@ -48,7 +48,12 @@ def llenar_datos_factura(data):
     win.send_keys(keys='.')
     win.send_keys(keys='{TAB}'*2)
     win.send_keys(keys=fecha)
-    win.send_keys(keys='{TAB}{DOWN}{DOWN}', send_enter=True)
+    # select service
+    control = win.control_window('name:"Factura de proveedores" and type:Window')
+    # check scroll
+    desk.click(f'coordinates:{control.left + 160},{control.top +  215}')
+    sleep(1)
+    desk.click(f'coordinates:{control.left + 160},{control.top +  240}')
     sleep(0.5)
     win.send_keys(keys='{ENTER}')
     win.send_keys(keys='{TAB}')
@@ -84,11 +89,14 @@ def llenar_datos_factura(data):
 
 def crear_factura():
     control = win.control_window('name:"Factura de proveedores" and type:Window')
+    # check scroll
+    desk.click(f'coordinates:{control.right - 20},{control.bottom - 25}')
+    sleep(1)
     desk.click(f'coordinates:{control.left + 90},{control.bottom - 25}')
     win.send_keys(keys='{DOWN}'*2)
-    sleep(0.5)
+    sleep(1)
     win.send_keys(keys='{ENTER}')
-    sleep(0.5)
+    sleep(1)
     win.send_keys(keys='{ENTER}')
 
 
