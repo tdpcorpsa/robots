@@ -40,51 +40,55 @@ def formulario_factura_de_proveedores():
 
 
 def llenar_datos_factura(data):
-    proveedor, fecha, serie, correlativo, centro_costo, \
+    proveedor, fecha_doc, fecha_cont, serie, correlativo, centro_costo, \
             unidad_negocio, local, canal_distr, \
             servicio, precio, comentarios, n_ccer = data
     win.send_keys(keys=proveedor)
     win.send_keys(keys='{TAB}'*7)
-    win.send_keys(keys='.')
+    win.send_keys(keys=fecha_cont.strip())
     win.send_keys(keys='{TAB}'*2)
-    win.send_keys(keys=fecha)
-    # select service
-    control = win.control_window('name:"Factura de proveedores" and type:Window')
-    # check scroll
-    desk.click(f'coordinates:{control.left + 160},{control.top +  215}')
-    sleep(1)
-    desk.click(f'coordinates:{control.left + 160},{control.top +  240}')
+    win.send_keys(keys=fecha_doc.strip())
+    win.send_keys(keys='{TAB}')
+    sleep(0.5)
+    win.send_keys(keys='{DOWN}'*2)
     sleep(0.5)
     win.send_keys(keys='{ENTER}')
-    win.send_keys(keys='{TAB}')
+    sleep(0.5)
     win.send_keys(keys='{CTRL}H')
-    win.send_keys(keys='{SHIFT}{TAB}') 
-    win.send_keys(keys=servicio)
+    win.send_keys(keys='{SHIFT}{TAB}')
+    win.send_keys(keys=servicio.strip())
     win.send_keys(keys='{TAB}'*3)
-    win.send_keys(keys=centro_costo)
+    win.send_keys(keys=centro_costo.strip())
+    sleep(0.5)
     win.send_keys(keys='{TAB}')
-    win.send_keys(keys=unidad_negocio)
+    win.send_keys(keys=unidad_negocio.strip())
+    sleep(0.5)
     win.send_keys(keys='{TAB}')
     win.send_keys(keys=local)
+    sleep(0.5)
     win.send_keys(keys='{TAB}')
-    win.send_keys(keys=canal_distr)
+    win.send_keys(keys=canal_distr.strip())
+    sleep(0.5)
     win.send_keys(keys='{TAB}')
     win.send_keys(keys=precio)
+    sleep(0.5)
     win.send_keys(keys='{CTRL}R')
-    win.send_keys(keys=f'{comentarios} Creado por: robot')
+    win.send_keys(keys=f'{comentarios.strip()} Creado por: robot')
 
     control = win.control_window('name:"Campos: Parametriz..." and and type:Window')
     desk.click(f'coordinates:{control.right - 50},{control.top + 42}')
     win.send_keys(keys='01')
     win.send_keys(keys='{TAB}')
-    win.send_keys(keys=serie)
+    sleep(0.5)
+    win.send_keys(keys=serie.strip())
     win.send_keys(keys='{TAB}')
-    win.send_keys(keys=correlativo)
+    sleep(0.5)
+    win.send_keys(keys=correlativo.strip())
     win.send_keys(keys='{TAB}'*2)
     win.send_keys(keys='{DOWN}'*8, send_enter=True)
     # add Numero CC/ER
     win.send_keys(keys='{TAB}')
-    win.send_keys(keys=n_ccer)
+    win.send_keys(keys=n_ccer.strip())
 
 
 def crear_factura():
