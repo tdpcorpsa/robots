@@ -42,7 +42,7 @@ def formulario_factura_de_proveedores():
 def llenar_datos_factura(data):
     proveedor, fecha_doc, fecha_cont, serie, correlativo, centro_costo, \
             unidad_negocio, local, canal_distr, \
-            servicio, precio, comentarios, n_ccer = data
+            servicio, precio, total, comentarios, n_ccer = data
     win.send_keys(keys=proveedor)
     win.send_keys(keys='{TAB}'*7)
     win.send_keys(keys=fecha_cont.strip())
@@ -74,6 +74,23 @@ def llenar_datos_factura(data):
     sleep(0.5)
     win.send_keys(keys='{CTRL}R')
     win.send_keys(keys=f'{comentarios.strip()} Creado por: robot')
+    
+    # redondeo
+    control = win.control_window('name:"Factura de proveedores" and type:Window')
+    desk.click(f'coordinates:{control.right - 20},{control.bottom - 25}')
+    # copiar total
+    sleep(0.5)
+    desk.click(f'coordinates:{control.right - 80},{control.bottom - 95}', action='right_click')
+    # seleccionar redondeo
+    win.send_keys(keys='{DOWN}')
+    sleep(0.5)
+    win.send_keys(keys='{ENTER}')
+    sleep(0.5)
+    desk.click(f'coordinates:{control.right - 270},{control.bottom - 170}')
+    total_fac = float(desk.get_clipboard_value().split(' ')[1].replace(',',''))
+    total_fac - float(total)
+    win.send_keys(keys=f'{float(total) - total_fac}')
+    win.send_keys(keys='{TAB}')
 
     control = win.control_window('name:"Campos: Parametriz..." and and type:Window')
     desk.click(f'coordinates:{control.right - 50},{control.top + 42}')
