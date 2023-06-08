@@ -40,9 +40,10 @@ def formulario_factura_de_proveedores():
 
 
 def llenar_datos_factura(data):
-    proveedor, fecha_doc, fecha_cont, serie, correlativo, centro_costo, \
+    proveedor, fecha_doc, fecha_cont, fecha_ven, serie, correlativo, centro_costo, \
             unidad_negocio, local, canal_distr, \
-            servicio, precio, total, comentarios, n_ccer = data
+            servicio, precio, sujeto_reten, total, comentarios, n_ccer, \
+            auto_det = data
     win.send_keys(keys=proveedor)
     win.send_keys(keys='{TAB}'*7)
     win.send_keys(keys=fecha_cont.strip())
@@ -102,7 +103,13 @@ def llenar_datos_factura(data):
     sleep(0.5)
     win.send_keys(keys=correlativo.strip())
     win.send_keys(keys='{TAB}'*2)
-    win.send_keys(keys='{DOWN}'*8, send_enter=True)
+
+    # verificar si es caja chica
+    if n_ccer:
+        win.send_keys(keys='{DOWN}'*8, send_enter=True)
+    else:
+        win.send_keys(keys='{DOWN}'*2, send_enter=True)
+        
     # add Numero CC/ER
     win.send_keys(keys='{TAB}')
     win.send_keys(keys=n_ccer.strip())
