@@ -47,7 +47,10 @@ def llenar_datos_factura(data):
     win.send_keys(keys=proveedor)
     win.send_keys(keys='{TAB}'*7)
     win.send_keys(keys=fecha_cont.strip())
-    win.send_keys(keys='{TAB}'*2)
+    win.send_keys(keys='{TAB}')
+    if fecha_ven:
+        win.send_keys(keys=fecha_ven.strip())
+    win.send_keys(keys='{TAB}')
     win.send_keys(keys=fecha_doc.strip())
     win.send_keys(keys='{TAB}')
     sleep(0.5)
@@ -107,12 +110,10 @@ def llenar_datos_factura(data):
     # verificar si es caja chica
     if n_ccer:
         win.send_keys(keys='{DOWN}'*8, send_enter=True)
+        win.send_keys(keys='{TAB}')
+        win.send_keys(keys=n_ccer.strip())
     else:
         win.send_keys(keys='{DOWN}'*2, send_enter=True)
-        
-    # add Numero CC/ER
-    win.send_keys(keys='{TAB}')
-    win.send_keys(keys=n_ccer.strip())
 
 
 def crear_factura():
