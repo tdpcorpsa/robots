@@ -45,19 +45,35 @@ def llenar_datos_factura(data):
             servicio, precio, sujeto_reten, total, comentarios, n_ccer, \
             auto_det = data
     win.send_keys(keys=proveedor)
-    win.send_keys(keys='{TAB}'*7)
+    win.send_keys(keys='{TAB}'*5)
+
+    # verificar moneda
+    win.send_keys(keys='{CTRL}c')
+    if desk.get_clipboard_value() in ('S/', 'US$'):
+        win.send_keys(keys='{TAB}')
+    win.send_keys(keys='{TAB}')
+    
     win.send_keys(keys=fecha_cont.strip())
     win.send_keys(keys='{TAB}')
     if fecha_ven:
+        sleep(0.2)
         win.send_keys(keys=fecha_ven.strip())
     win.send_keys(keys='{TAB}')
+    sleep(0.2)
     win.send_keys(keys=fecha_doc.strip())
     win.send_keys(keys='{TAB}')
-    sleep(0.5)
-    win.send_keys(keys='{DOWN}'*2)
-    sleep(0.5)
-    win.send_keys(keys='{ENTER}')
-    sleep(0.5)
+
+    # verificar clase de documento
+    win.send_keys(keys='{CTRL}c')
+    print(desk.get_clipboard_value())
+    if desk.get_clipboard_value() not in ('S', 'I'):
+        raise Exception('Clase de documento no es S o I')
+    elif desk.get_clipboard_value() == 'I':
+        sleep(0.2)
+        win.send_keys(keys='{DOWN}'*2)
+        sleep(0.2)
+        win.send_keys(keys='{ENTER}')
+    sleep(0.2)
     win.send_keys(keys='{CTRL}H')
     win.send_keys(keys='{SHIFT}{TAB}')
     win.send_keys(keys=servicio.strip())
