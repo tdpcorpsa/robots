@@ -9,3 +9,4 @@ pyfiglet
 rich
 pandas
 pyodbc
+inquirer

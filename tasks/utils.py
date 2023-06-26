@@ -3,7 +3,7 @@ import pyodbc
 import requests
 import json
 
-DB_NAME = 'SBO_TDPC_TEST'
+DB_NAME = 'SBO_TDPC_PROD'
 
 
 ## string connection
@@ -21,7 +21,7 @@ URL_BASE = 'https://192.168.208.109:50000'
 
 LOGIN_URL = f'{URL_BASE}/b1s/v1/Login'
 
-def login(user_name, password, company_db=DB_NAME):
+def login(user_name, password, company_db):
     """
         args:
             user_name: str 
@@ -48,4 +48,5 @@ def login(user_name, password, company_db=DB_NAME):
         return response.json()['SessionId']
     else:
         raise Exception(response.json()['error']['message']['value'])
+
 

@@ -7,9 +7,9 @@ import json
 import requests
 from .utils import get_conn_sql, URL_BASE, login
 from rich import print
+from .helpers import get_withholding_tax_codes, get_business_partner
 
 warnings.filterwarnings('ignore')
-
 
 
 def ger_services(conn, codes):
@@ -57,40 +57,80 @@ def read_data():
     # casting to float
     df['Precio por unidad'] = df['Precio por unidad'].astype(float)
     df['Total (ML)'] = df['Total (ML)'].astype(float)
+    df['Total del documento'] = df['Total del documento'].astype(float)
+
     # add services name
     servicios_df = ger_services(conn, df['Codigo de Gasto'].unique())[['Code', 'U_SYP_Concepto']]
     df = df.merge(servicios_df, left_on='Codigo de Gasto', right_on='Code', how='left')
     # add index
     df['No.Ref.del acreedor'] = df['Tipo de Documento'].str.cat(df[['Serie del Documento','Correlativo del Documento']], sep='-')
     df.set_index('No.Ref.del acreedor', inplace=True)
+
     return df
 
 
-def make_invoices(df):
+def make_invoices(df, session_id):
     invoices = []
     new_df = df[df['DocNum'] == '']
     for index in new_df.index.unique():
-        infoice_df = df.loc[[index]]
+        invoice_df = df.loc[[index]]
         invoice = {
-            "CardCode": infoice_df['Proveedor'].iloc[0],
+            "CardCode": invoice_df['Proveedor'].iloc[0],
             "NumAtCard": index,
             # fechas
-            "DocDate": infoice_df['Fecha de contabilización'].iloc[0].strftime('%Y-%m-%d'),
-            "DocDueDate": infoice_df['Fecha de vencimiento'].iloc[0].strftime('%Y-%m-%d'),
-            "TaxDate": infoice_df['Fecha del documento'].iloc[0].strftime('%Y-%m-%d'),
+            "DocDate": invoice_df['Fecha de contabilización'].iloc[0].strftime('%Y-%m-%d'),
+            "DocDueDate": invoice_df['Fecha de vencimiento'].iloc[0].strftime('%Y-%m-%d'),
+            "TaxDate": invoice_df['Fecha del documento'].iloc[0].strftime('%Y-%m-%d'),
             "DocType": "S",
             # Numero de factura
-            "U_SYP_MDTD": infoice_df['Tipo de Documento'].iloc[0],
-            "U_SYP_MDSD": infoice_df['Serie del Documento'].iloc[0],
-            "U_SYP_MDCD": infoice_df['Correlativo del Documento'].iloc[0],
-            "U_SYP_TCOMPRA": infoice_df['Tipo de Compra'].iloc[0],
-            "comments": infoice_df['Comentarios'].iloc[0],
+            "U_SYP_MDTD": invoice_df['Tipo de Documento'].iloc[0],
+            "U_SYP_MDSD": invoice_df['Serie del Documento'].iloc[0],
+            "U_SYP_MDCD": invoice_df['Correlativo del Documento'].iloc[0],
+            "U_SYP_TCOMPRA": invoice_df['Tipo de Compra'].iloc[0],
+            "Comments": f"""
+                {invoice_df['Comentarios'].iloc[0]} \n creado por bot
+            """
         }
-        if infoice_df['Tipo de Compra'].iloc[0] == 'CC':
-            invoice['U_SYP_CODERCC'] = infoice_df['Numero CC/ER'].iloc[0]
+
+        if invoice_df['Auto-Detracción'].iloc[0]:
+            invoice['U_SYP_AUDET'] = invoice_df['Auto-Detracción'].iloc[0]
+
+        if invoice_df['Tipo de Compra'].iloc[0] == 'CC':
+            invoice['U_SYP_CODERCC'] = invoice_df['Numero CC/ER'].iloc[0]
+
+        if invoice_df['Tipo Operación - DET'].iloc[0]:
+            invoice['U_SYP_TPO_OP'] = invoice_df['Tipo Operación - DET'].iloc[0]
+
+        # Código DET
+        if invoice_df['Código DET'].iloc[0]:
+            code = invoice_df['Código DET'].iloc[0]
+            try:
+                data = get_withholding_tax_codes(code, session_id)
+            except:
+                raise Exception(f'Código DET {invoice_df["Código DET"].iloc[0]} no es valido')
+            rate = data['Rate']
+            total = invoice_df['Total (ML)'].sum()
+            try:
+                amount = round(total * rate / 100, 0)
+            except Exception as e:
+                print(e)
+                raise Exception(f'Verifique el monto del documento {index}')
+
+            invoice['WithholdingTaxDataCollection'] = [{
+                "WTCode": code,
+                "WTAmount": amount,
+            }]
+        else:
+            bp = get_business_partner(invoice_df['Proveedor'].iloc[0], session_id)
+            code = bp['WTCode']
+            if code:
+                invoice['WithholdingTaxDataCollection'] = [{
+                "WTCode": code,
+                "WTAmount": 0.,
+            }]
 
         invoice_lines = []
-        for index, row in infoice_df.iterrows():
+        for index, row in invoice_df.iterrows():
             invoice_lines.append({
                 "AccountCode": row['Codigo de Gasto'],
                 "U_SYP_TIPOSERV": row['Codigo de Gasto'],
@@ -105,7 +145,7 @@ def make_invoices(df):
                 "CostingCode3": row['Local'],
                 "CostingCode4": row['Canal de distribución'],
                 # Total (ML)
-                "LineTotal": row['Total (ML)']
+
             })
 
         invoice['DocumentLines'] = invoice_lines
@@ -126,13 +166,14 @@ def create_invoice(invoice, session_id):
         'Cookie': f'B1SESSION={session_id}'
     }
     json_data = json.dumps(invoice)
-    response = requests.post(f'{URL_BASE}/b1s/v1/PurchaseInvoices', data=json_data, headers=headers, verify=False)
+    url = f'{URL_BASE}/b1s/v1/PurchaseInvoices'
+    response = requests.post(url, data=json_data, headers=headers, verify=False)
     return response.json()
 
 
 def run(session_id):
     df = read_data()
-    invoices = make_invoices(df)
+    invoices = make_invoices(df, session_id)
     # documentos creados
     df['Processed'] = False
     for invoice in invoices:
@@ -142,6 +183,9 @@ def run(session_id):
             df.loc[req["NumAtCard"], "DocNum"] = str(req["DocNum"])
         except:
             df.loc[invoice["NumAtCard"], "Error"] = req["error"]["message"]["value"]
+        else:
+            df.loc[invoice["NumAtCard"], "Error"] = ''
+
     print(df[df["Processed"]][['DocNum', 'Error']].fillna('-'))
 
     # update google sheet
