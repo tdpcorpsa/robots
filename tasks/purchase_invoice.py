@@ -150,7 +150,6 @@ def make_invoices(df, session_id):
                 "CostingCode3": row['Local'],
                 "CostingCode4": row['Canal de distribución'],
                 # Total (ML)
-
             })
 
         invoice['DocumentLines'] = invoice_lines

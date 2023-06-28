@@ -10,3 +10,5 @@ if not exist .\.env\Scripts\activate.bat (
 call .\.env\Scripts\activate.bat 
 
 py .\jobs.py
+
+pause >nul
