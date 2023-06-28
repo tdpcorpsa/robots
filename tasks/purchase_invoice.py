@@ -54,10 +54,10 @@ def read_data():
     df['Fecha de contabilización'] = pd.to_datetime(df['Fecha de contabilización'], format='%d.%m.%Y')
     df['Fecha del documento'] = pd.to_datetime(df['Fecha del documento'], format='%d.%m.%Y')
     df['Fecha de vencimiento'] = pd.to_datetime(df['Fecha de vencimiento'], format='%d.%m.%Y')
-    # casting to float
-    df['Precio por unidad'] = df['Precio por unidad'].astype(float)
-    df['Total (ML)'] = df['Total (ML)'].astype(float)
-    df['Total del documento'] = df['Total del documento'].astype(float)
+    # remove spaces and commas as to float
+    df['Precio por unidad'] = df['Precio por unidad'].str.replace(',', '').str.replace(' ', '').astype(float)
+    df['Total (ML)'] = df['Total (ML)'].str.replace(',', '').str.replace(' ', '').astype(float)
+    df['Total del documento'] = df['Total del documento'].str.replace(',', '').str.replace(' ', '').astype(float)
 
     # add services name
     servicios_df = ger_services(conn, df['Codigo de Gasto'].unique())[['Code', 'U_SYP_Concepto']]
