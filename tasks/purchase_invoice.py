@@ -128,6 +128,11 @@ def make_invoices(df, session_id):
                 "WTCode": code,
                 "WTAmount": 0.,
             }]
+                
+        # currency add curSource and docCur
+        if invoice_df['Moneda'].iloc[0]:
+            invoice['DocCurrency'] = invoice_df['Moneda'].iloc[0]
+            invoice['CurrencySource'] = 'C'
 
         invoice_lines = []
         for index, row in invoice_df.iterrows():
@@ -190,6 +195,6 @@ def run(session_id):
 
     # update google sheet
     doc_num = df['DocNum'].fillna('').to_numpy().reshape(-1, 1)
-    worksheet.update('W2', doc_num.tolist())
+    worksheet.update('X2', doc_num.tolist())
     errors = df['Error'].fillna('').to_numpy().reshape(-1, 1)
-    worksheet.update('X2', errors.tolist())
+    worksheet.update('Y2', errors.tolist())
