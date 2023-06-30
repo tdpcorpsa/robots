@@ -6,8 +6,11 @@ import warnings
 import json
 import requests
 from .utils import get_conn_sql, URL_BASE, login
-from rich import print
 from .helpers import get_withholding_tax_codes, get_business_partner
+from rich.console import Console
+
+console = Console(record=True)
+print = console.print
 
 warnings.filterwarnings('ignore')
 
@@ -177,7 +180,11 @@ def create_invoice(invoice, session_id):
 
 def run(session_id):
     df = read_data()
-    invoices = make_invoices(df, session_id)
+    try:
+        invoices = make_invoices(df, session_id)
+    except Exception as e:
+        console.print_exception()
+        return
     # documentos creados
     df['Processed'] = False
     for invoice in invoices:
