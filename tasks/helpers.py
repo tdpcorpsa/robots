@@ -1,6 +1,10 @@
 import requests
 from .utils import get_conn_sql, URL_BASE, login
+from rich.console import Console
 
+
+console = Console(record=True)
+print = console.print
 
 def get_withholding_tax_codes(code, session_id):
     """
@@ -19,7 +23,8 @@ def get_withholding_tax_codes(code, session_id):
     if response.status_code == 200:
         return response.json()
     else:
-        raise Exception(response.json()['error']['message']['value'])
+        print(f'[red]withholding tax code {code} not found[/red]')
+        raise Exception(response.json())
     
 
 def get_business_partner(card_code, session_id):
@@ -39,4 +44,5 @@ def get_business_partner(card_code, session_id):
     if response.status_code == 200:
         return response.json()
     else:
-        raise Exception(response.json()['error']['message']['value'])
+        print(f'[red]business partner {card_code} not found[/red]')
+        raise Exception(response.json())
