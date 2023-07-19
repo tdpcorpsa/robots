@@ -92,7 +92,8 @@ def make_invoices(df, session_id):
             "U_SYP_TCOMPRA": invoice_df['Tipo de Compra'].iloc[0],
             "Comments": f"""
                 {invoice_df['Comentarios'].iloc[0]} \n creado por bot
-            """
+            """,
+            "JournalMemo": invoice_df['Comentarios'].iloc[0],
         }
 
         if invoice_df['Auto-Detracción'].iloc[0]:
