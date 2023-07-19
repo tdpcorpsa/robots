@@ -98,6 +98,7 @@ def make_invoices(df, session_id):
 
         if invoice_df['Auto-Detracción'].iloc[0]:
             invoice['U_SYP_AUDET'] = invoice_df['Auto-Detracción'].iloc[0]
+            invoice['U_SYP_TPO_OP'] = '01'
 
         if invoice_df['Tipo de Compra'].iloc[0] == 'CC':
             invoice['U_SYP_CODERCC'] = invoice_df['Numero CC/ER'].iloc[0]
