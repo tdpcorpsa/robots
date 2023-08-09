@@ -6,7 +6,7 @@ import warnings
 import json
 import requests
 from .utils import get_conn_sql, URL_BASE, login
-from .helpers import get_withholding_tax_codes, get_business_partner
+from .helpers import get_withholding_tax_codes, get_business_partner, put_business_partner
 from rich.console import Console
 
 console = Console(record=True)
@@ -96,6 +96,8 @@ def make_invoices(df, session_id):
             "JournalMemo": invoice_df['Comentarios'].iloc[0],
         }
 
+        business_partner = get_business_partner(session_id, invoice_df['Proveedor'].iloc[0])
+
         if invoice_df['Auto-Detracción'].iloc[0]:
             invoice['U_SYP_AUDET'] = invoice_df['Auto-Detracción'].iloc[0]
             invoice['U_SYP_TPO_OP'] = '01'
@@ -110,7 +112,7 @@ def make_invoices(df, session_id):
         if invoice_df['Código DET'].iloc[0]:
             code = invoice_df['Código DET'].iloc[0]
             try:
-                data = get_withholding_tax_codes(code, session_id)
+                data = get_withholding_tax_codes(session_id, code)
             except:
                 raise Exception(f'Código DET {invoice_df["Código DET"].iloc[0]} no es valido')
             rate = data['Rate']
@@ -126,8 +128,7 @@ def make_invoices(df, session_id):
                 "WTAmount": amount,
             }]
         else:
-            bp = get_business_partner(invoice_df['Proveedor'].iloc[0], session_id)
-            code = bp['WTCode']
+            code = business_partner['WTCode']
             if code:
                 invoice['WithholdingTaxDataCollection'] = [{
                 "WTCode": code,
@@ -174,6 +175,18 @@ def create_invoice(invoice, session_id):
         'Content-Type': 'application/json',
         'Cookie': f'B1SESSION={session_id}'
     }
+
+    # check currency type
+
+    if invoice['DocCurrency'] == 'S/' and invoice['CardCode'] != '4011111':
+        put_business_partner(session_id, invoice['CardCode'], {
+            "DebitorAccount": "4211111"
+        })
+    elif invoice['DocCurrency'] == 'US$' and invoice['CardCode'] != '4011112':
+        put_business_partner(session_id, invoice['CardCode'], {
+            "DebitorAccount": "4211112"
+        })
+
     json_data = json.dumps(invoice)
     url = f'{URL_BASE}/b1s/v1/PurchaseInvoices'
     response = requests.post(url, data=json_data, headers=headers, verify=False)
