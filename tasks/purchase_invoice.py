@@ -44,7 +44,7 @@ app = PublicClientApplication(
     client_id=client_id,
     authority=f"https://login.microsoftonline.com/{tenant_id}"
 )
-url =  'https://graph.microsoft.com/v1.0/me/drive/root:/robots/Entregas a rendir.xlsx:/content'
+url =  'https://graph.microsoft.com/v1.0/me/drive/root:/robots/Entregas a rendir.xlsx'
 
 def ms_365_login():
     result = None
@@ -81,12 +81,13 @@ def write_data(df):
     worksheet_name = 'Hoja1'
     
     doc_num = df['DocNum'].fillna('').to_numpy().reshape(-1, 1)
-    request_body = {
-        "values": doc_num.tolist(),
-    }
-    target_cell_range = f"X1:X{len(doc_num)}"
-    target_cell_range_url = f'{url}/workbook/worksheets(\'{worksheet_name}\')/range(address=\'{target_cell_range}\')'
+    errors = df['Error'].fillna('').to_numpy().reshape(-1, 1)
     
+    request_body = {
+        "values": errors.tolist(),
+    }
+    target_cell_range = f"Z2:Z{len(errors) + 1}"
+    target_cell_range_url = f'{url}:/workbook/worksheets(\'{worksheet_name}\')/range(address=\'{target_cell_range}\')'
     res = requests.patch(target_cell_range_url, json=request_body, headers=headers)
     if res.status_code != 200:
         print (res.json())
@@ -108,7 +109,7 @@ def read_data():
         'Authorization': f'Bearer {access_token}'
     }
     
-    res = requests.get(url, headers=headers)
+    res = requests.get(f'{url}:/content', headers=headers)
     if res.status_code != 200:
         print (res.json())
         raise Exception('Error al leer el archivo de microsoft 365')
@@ -138,7 +139,7 @@ def read_data():
         'Moneda': str,
         'DocNum': str,
         'Error': str,
-    })
+    }, usecols='A:Y')
     # completar datos en tipo blanco y na
     df['Tipo de Documento'] = df['Tipo de Documento'].replace('', '01').fillna('01')
 
@@ -162,12 +163,15 @@ def read_data():
     df['No.Ref.del acreedor'] = df['Tipo de Documento'].str.cat(df[['Serie del Documento','Correlativo del Documento']], sep='-')
     df.set_index('No.Ref.del acreedor', inplace=True)
 
+    # remove withspaces
+    df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    df = df[~(df.Proveedor.isna()) & ~(df.Proveedor == '')]
     return df
 
 
 def make_invoices(df, session_id):
     invoices = []
-    new_df = df[df['DocNum'] == '']
+    new_df = df[(df['DocNum'] == '') | (df['DocNum'] == "\xa0") | (df['DocNum'].isna())]
     for index in new_df.index.unique():
         invoice_df = df.loc[[index]]
         invoice = {
@@ -288,7 +292,6 @@ def create_invoice(invoice, session_id):
 
 def run(session_id):
     df = read_data()
-    print(df)
     try:
         invoices = make_invoices(df, session_id)
     except Exception as e:
@@ -306,5 +309,7 @@ def run(session_id):
         else:
             df.loc[invoice["NumAtCard"], "Error"] = ''
 
-    print(df[df["Processed"]][['DocNum', 'Error']].fillna('-'))
+    write_data(df)
+    df_processed = df[df["Processed"]][['DocNum', 'Error']].fillna('-')
+    print(df_processed)
     
