@@ -21,7 +21,7 @@ URL_BASE = 'https://192.168.208.109:50000'
 
 LOGIN_URL = f'{URL_BASE}/b1s/v1/Login'
 
-def login(user_name, password, company_db):
+def login(user_name: str, password: str, company_db: str):
     """
         args:
             user_name: str 
