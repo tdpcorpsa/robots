@@ -260,6 +260,27 @@ def make_invoices(df, session_id):
     return invoices
 
 
+def invoice_exists(session_id: str, num_at_card: str):
+    """
+    """
+    headers = {
+        'Content-Type': 'application/json',
+        'Cookie': f'B1SESSION={session_id}'
+    }
+    url = f"{URL_BASE}/b1s/v1/PurchaseInvoices?$filter=NumAtCard eq '{num_at_card}'"
+    
+    response = requests.get(url, headers=headers, verify=False)
+    
+    
+    data = response.json()
+    
+    # check error
+    if 'error' in data:
+        raise Exception(data['error']['message']['value'])
+    # check if exists
+    if data['value']:
+        raise Exception(f'the invoice {num_at_card} already exists, N° SAP {data["value"][0]["DocNum"]}')
+    
 def create_invoice(invoice, session_id):
     """
         args:
@@ -268,6 +289,11 @@ def create_invoice(invoice, session_id):
         return:
             dict
     """
+    
+    # check if exists
+    invoice_exists(session_id, invoice['NumAtCard'])
+    
+    
     headers = {
         'Content-Type': 'application/json',
         'Cookie': f'B1SESSION={session_id}'
@@ -300,14 +326,17 @@ def run(session_id):
     # documentos creados
     df['Processed'] = False
     for invoice in invoices:
-        req = create_invoice(invoice, session_id)
-        df.loc[invoice["NumAtCard"], "Processed"] = True
         try:
+            req = create_invoice(invoice, session_id)
             df.loc[req["NumAtCard"], "DocNum"] = str(req["DocNum"])
-        except:
+        except KeyError:
             df.loc[invoice["NumAtCard"], "Error"] = req["error"]["message"]["value"]
+        except Exception as e:
+            df.loc[invoice["NumAtCard"], "Error"] = str(e)
         else:
             df.loc[invoice["NumAtCard"], "Error"] = ''
+        finally:
+            df.loc[invoice["NumAtCard"], "Processed"] = True
 
     write_data(df)
     df_processed = df[df["Processed"]][['DocNum', 'Error']].fillna('-')

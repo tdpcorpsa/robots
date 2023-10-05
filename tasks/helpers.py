@@ -1,7 +1,10 @@
 import requests
 from .utils import get_conn_sql, URL_BASE, login
 from rich.console import Console
-
+from selenium import webdriver
+import chromedriver_autoinstaller
+from selenium.webdriver.common.by import By
+import re
 
 console = Console(record=True)
 print = console.print
@@ -46,6 +49,33 @@ def get_business_partner(session_id: str, card_code: str):
     else:
         print(f'[red]business partner {card_code} not found[/red]')
         raise Exception(response.json())
+
+
+def create_business_partner(session_id: str, code: str):
+    """
+    """
+    url = f"{URL_BASE}/b1s/v1/BusinessPartners"
+    headers = {
+        'Content-Type': 'application/json',
+        'Cookie': f'B1SESSION={session_id}'
+    }
+    chromedriver_autoinstaller.install() 
+    driver = webdriver.Chrome()
+    url = 'https://e-consultaruc.sunat.gob.pe/cl-ti-itmrconsruc/jcrS00Alias'
+    driver.get(url)
+    # get only numbers 
+    ruc = re.sub("[^0-9]", "", code)
+    driver.find_element(By.ID, 'txtRuc').clear()
+    driver.find_element(By.ID, 'txtRuc').send_keys(ruc)
+    driver.find_element(By.ID, 'btnAceptar').click()
+    
+    razonsocial = driver.find_elements(By.CSS_SELECTOR, '.list-group-item-heading:last-child')[1].text.split('-')[1].strip()
+    activo = driver.find_element(By.XPATH, "//*[contains(text(), 'Estado del Contribuyente:')]").find_element(By.XPATH, '../..').text.split(':')[1].strip()
+    if activo != 'ACTIVO':
+        raise Exception(f'business partner {code} not active')
+    
+    
+    
 
 
 def put_business_partner(session_id: str, code: str, data: dict):
