@@ -141,7 +141,7 @@ def read_data():
         'Error': str,
     }, usecols='A:Y')
     # completar datos en tipo blanco y na
-    df['Tipo de Documento'] = df['Tipo de Documento'].replace('', '01').fillna('01')
+    df['Tipo de Documento'] = df['Tipo de Documento'].replace('', '01').fillna('01').str.zfill(2)
 
     # actualizar tipo de compra solo si Numero CC/ER esta vacio
     df.loc[df['Numero CC/ER'] == '', 'Tipo de Compra'] = '01'
