@@ -11,3 +11,5 @@ rich
 pandas
 pyodbc
 inquirer
+webdriver-manager
+tqdm
