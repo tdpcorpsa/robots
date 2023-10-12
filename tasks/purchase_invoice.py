@@ -5,7 +5,7 @@ import gspread as gs
 import warnings
 import json
 import requests
-from .utils import get_conn_sql, URL_BASE, login
+from .utils import get_conn_sql, URL_BASE
 from .helpers import get_withholding_tax_codes, get_business_partner, put_business_partner
 from msal import PublicClientApplication
 from rich.console import Console
@@ -260,14 +260,14 @@ def make_invoices(df, session_id):
     return invoices
 
 
-def invoice_exists(session_id: str, num_at_card: str):
+def invoice_exists(session_id: str, num_at_card: str, card_code: str):
     """
     """
     headers = {
         'Content-Type': 'application/json',
         'Cookie': f'B1SESSION={session_id}'
     }
-    url = f"{URL_BASE}/b1s/v1/PurchaseInvoices?$filter=NumAtCard eq '{num_at_card}'"
+    url = f"{URL_BASE}/b1s/v1/PurchaseInvoices?$filter=NumAtCard eq '{num_at_card}' and  CardCode eq '{card_code}'"
     
     response = requests.get(url, headers=headers, verify=False)
     
@@ -291,7 +291,7 @@ def create_invoice(invoice, session_id):
     """
     
     # check if exists
-    invoice_exists(session_id, invoice['NumAtCard'])
+    invoice_exists(session_id, invoice['NumAtCard'], invoice['CardCode'])
     
     
     headers = {

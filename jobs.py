@@ -1,10 +1,9 @@
-from tasks import crear_factura_ER
 from rich.console import Console
-from tasks import purchase_invoice
+from tasks import select_task, run_task
+from tasks.utils import login
 import pyfiglet
 import click
 import inquirer
-
 
 console = Console(record=True)
 print = console.print
@@ -14,6 +13,7 @@ if __name__ == '__main__':
     print(f'[bold red]{welcome}[/]')
     print('[bold red]Bienvenido a la automatización de procesos en SAP \n[/]')
 
+    task = select_task()
     
     companies = [
         {'name': 'TDP CORP S.A.', 'value': 'SBO_TDPC_PROD'},
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     session_id = ''
     while not session_id:
         try:
-            session_id = purchase_invoice.login(user, password, company_db)
+            session_id = login(user, password, company_db)
         except Exception as e:
             print(e)
             user = click.prompt('Usuario', type=str)
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         else:
             print('[bold green]Ha iniciado sesión correctamente[/] \n')
 
-    purchase_invoice.run(session_id)
+    run_task(task, session_id)
 
     
     
