@@ -138,14 +138,14 @@ def validate_sunat(access_token: str, doc: dict):
         'Authorization': f'Bearer {access_token}',
         "Accept": "application/json"
     } 
-    
+    monto  =  doc['DocTotal'] + doc['WTAmount'] if doc['DocCurrency'] == 'S/' else doc['DocTotalFC'] + doc['WTAmountFC']
     data: DataType = {
         'numRuc': doc['CardCode'].replace('P', ''),
         'codComp': doc['U_SYP_MDTD'],
         'numeroSerie': doc['U_SYP_MDSD'],
         'numero': doc['U_SYP_MDCD'],
         'fechaEmision': datetime.datetime.strptime(doc['TaxDate'], '%Y-%m-%d').strftime('%d/%m/%Y'),
-        'monto': doc['DocTotal'],
+        'monto': monto,
     }
     
     url = f"https://api.sunat.gob.pe/v1/contribuyente/contribuyentes/{ruc}/validarcomprobante"
