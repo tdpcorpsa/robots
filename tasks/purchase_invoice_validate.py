@@ -175,9 +175,10 @@ def validate_sunat(access_token: str, doc: dict):
 
     
 
+WB = 'https://docs.google.com/spreadsheets/d/187YL6JYn4wBcjkR4bkbQCNlqjsGzzLqPhNcYF8W7X0A/edit#gid=0'
+
 def write_to_excel(df: pd.DataFrame, perid: str):
     gc = gs.service_account(filename='tdpcorp-139fbe6dbc3c.json')
-    WB = 'https://docs.google.com/spreadsheets/d/187YL6JYn4wBcjkR4bkbQCNlqjsGzzLqPhNcYF8W7X0A/edit#gid=0'
     workbook = gc.open_by_url(WB)
     # check if sheet exists
     if perid in [sheet.title for sheet in workbook.worksheets()]:
@@ -201,3 +202,5 @@ def run(session_id: str, period: str):
         pbar.set_description(f"Validando {doc['NumAtCard']}")
     print(df)
     write_to_excel(df, period)
+    
+    print(f'[bold green]Ver resultados en[/] {WB}')
