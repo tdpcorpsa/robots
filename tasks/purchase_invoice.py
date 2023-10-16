@@ -163,7 +163,7 @@ def make_invoices(df, session_id):
     return invoices
 
 
-def invoice_exists(session_id: str, num_at_card: str):
+def invoice_exists(session_id: str, num_at_card: str, card_code: str):
     """
     """
     headers = {
@@ -194,7 +194,7 @@ def create_invoice(invoice, session_id):
     """
     
     # check if exists
-    invoice_exists(session_id, invoice['NumAtCard'])
+    invoice_exists(session_id, invoice['NumAtCard'], invoice['CardCode'])
     
     
     headers = {
