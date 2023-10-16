@@ -98,3 +98,4 @@ def put_business_partner(session_id: str, code: str, data: dict):
     else:
         print(f'[red]business partner {code} not found[/red]')
         raise Exception(response.json())
+

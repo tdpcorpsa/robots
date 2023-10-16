@@ -49,4 +49,3 @@ def login(user_name: str, password: str, company_db: str):
     else:
         raise Exception(response.json()['error']['message']['value'])
 
-
