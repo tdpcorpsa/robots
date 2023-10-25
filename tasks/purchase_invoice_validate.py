@@ -138,33 +138,30 @@ def validate_sunat(access_token: str, doc: dict):
         'Authorization': f'Bearer {access_token}',
         "Accept": "application/json"
     } 
-    monto  =  doc['DocTotal'] + doc['WTAmount'] if doc['DocCurrency'] == 'S/' else doc['DocTotalFC'] + doc['WTAmountFC']
+    monto  =  doc['DocTotal'] + doc['WTAmount'] if doc['DocCurrency'] == 'S/' else doc['DocTotalFc'] + doc['WTAmountFC']
     data: DataType = {
-        'numRuc': doc['CardCode'].replace('P', ''),
+        'numRuc': doc['FederalTaxID'],
         'codComp': doc['U_SYP_MDTD'],
         'numeroSerie': doc['U_SYP_MDSD'],
-        'numero': doc['U_SYP_MDCD'],
+        'numero': doc['U_SYP_MDCD'].lstrip('0'),
         'fechaEmision': datetime.datetime.strptime(doc['TaxDate'], '%Y-%m-%d').strftime('%d/%m/%Y'),
-        'monto': monto,
+        'monto': f'{monto:.2f}'
     }
-    
+    print(data)
     url = f"https://api.sunat.gob.pe/v1/contribuyente/contribuyentes/{ruc}/validarcomprobante"
     
     res = requests.post(url, json=data, headers=headers)
-    #if res.status_code != 200:
-    #    print(res.json())
-    #    print(data)
-    
+    print(res.json())
     row = [
         doc['DocNum'],
-        doc['CardCode'],
+        data['numRuc'],
         doc['CardName'],
         data['fechaEmision'],
         data['codComp'],
         data['numeroSerie'],
         data['numero'],
         data['monto'],
-        estadoCo.get(res.json().get('data', {}).get('estadoCp', '')),
+        estadoCo.get(str(res.json().get('data', {}).get('estadoCp', ''))),
         estadoRuc.get(res.json().get('data', {}).get('estadoRuc', '')),
         condDomiRuc.get(res.json().get('data', {}).get('condDomiRuc', '')),
         res.json().get('data', {}).get('observaciones', ''),

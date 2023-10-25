@@ -245,7 +245,7 @@ def run(session_id):
 
     # update google sheet
     doc_num = df['DocNum'].fillna('').to_numpy().reshape(-1, 1)
-    worksheet.update('X2', doc_num.tolist())
+    worksheet.update('Y2', doc_num.tolist())
     errors = df['Error'].fillna('').to_numpy().reshape(-1, 1)
-    worksheet.update('Y2', errors.tolist())
+    worksheet.update('Z2', errors.tolist())
 
