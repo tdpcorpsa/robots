@@ -3,16 +3,15 @@ import gspread as gs
 from tasks.crear_factura_ER import * 
 import gspread as gs
 import warnings
-import json
 import requests
 from .utils import URL_BASE
-from .helpers import get_withholding_tax_codes, get_business_partner, put_business_partner
 from rich.console import Console
 import datetime
 import calendar
 from typing import TypedDict
 import pandas as pd
 from tqdm import tqdm
+import json
 
 console = Console(record=True)
 print = console.print
@@ -147,11 +146,9 @@ def validate_sunat(access_token: str, doc: dict):
         'fechaEmision': datetime.datetime.strptime(doc['TaxDate'], '%Y-%m-%d').strftime('%d/%m/%Y'),
         'monto': f'{monto:.2f}'
     }
-    print(data)
     url = f"https://api.sunat.gob.pe/v1/contribuyente/contribuyentes/{ruc}/validarcomprobante"
     
     res = requests.post(url, json=data, headers=headers)
-    print(res.json())
     row = [
         doc['DocNum'],
         data['numRuc'],
@@ -161,12 +158,22 @@ def validate_sunat(access_token: str, doc: dict):
         data['numeroSerie'],
         data['numero'],
         data['monto'],
-        estadoCo.get(str(res.json().get('data', {}).get('estadoCp', ''))),
-        estadoRuc.get(res.json().get('data', {}).get('estadoRuc', '')),
-        condDomiRuc.get(res.json().get('data', {}).get('condDomiRuc', '')),
-        res.json().get('data', {}).get('observaciones', ''),
-        res.json().get('message', '')
     ]
+    
+    
+    try:
+        row += [
+            json.dumps(estadoCo.get(str(res.json().get('data', {}).get('estadoCp', '')))),
+            json.dumps(estadoRuc.get(res.json().get('data', {}).get('estadoRuc', ''))),
+            json.dumps(condDomiRuc.get(res.json().get('data', {}).get('condDomiRuc', ''))),
+            json.dumps(res.json().get('data', {}).get('observaciones', '')),
+            json.dumps(res.json())
+        ]
+    except:
+        print(data)
+        print(res.json())
+        
+    
 
     return pd.Series(row, index=columns)
 
