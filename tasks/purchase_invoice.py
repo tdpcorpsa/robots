@@ -8,6 +8,7 @@ import requests
 from .utils import get_conn_sql, URL_BASE
 from .helpers import get_withholding_tax_codes, get_business_partner, put_business_partner
 from rich.console import Console
+import time
 
 console = Console(record=True)
 print = console.print
@@ -76,6 +77,7 @@ def make_invoices(df, session_id):
     invoices = []
     new_df = df[(df['DocNum'] == '') | (df['DocNum'] == "\xa0") | (df['DocNum'].isna())]
     for index in new_df.index.unique():
+        time.sleep(5)
         invoice_df = df.loc[[index]]
         invoice = {
             "CardCode": invoice_df['Proveedor'].iloc[0],

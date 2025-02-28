@@ -4,6 +4,7 @@ from rich.console import Console
 from selenium import webdriver
 import chromedriver_autoinstaller
 from selenium.webdriver.common.by import By
+import time
 import re
 
 console = Console(record=True)
@@ -47,6 +48,9 @@ def get_business_partner(session_id: str, card_code: str):
     if response.status_code == 200:
         return response.json()
     else:
+        if response.status_code == 500:
+            time.sleep(10)
+            return get_business_partner(session_id, card_code)
         print(f'[red]business partner {card_code} not found[/red]')
         raise Exception(response.json())
 
@@ -75,8 +79,6 @@ def create_business_partner(session_id: str, code: str):
         raise Exception(f'business partner {code} not active')
     
     
-    
-
 
 def put_business_partner(session_id: str, code: str, data: dict):
     """
